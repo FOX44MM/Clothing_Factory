@@ -1,5 +1,11 @@
-# Vue 3 + Vite
+# 制衣厂
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+基于vue.js制作的前端，  
+目前还没有添加css样式，所以看着有些简陋
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+
+目前进度：
+- [ ] 员工管理
+- [ ] 薪资管理
+- [ ] 款式管理
+
