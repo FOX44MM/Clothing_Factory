@@ -1,23 +1,31 @@
 import {createRouter, createWebHashHistory, createWebHistory} from 'vue-router'
 
-import emp from './components/employee/emp.vue'
-import tableEmployee from './components/employee/tableEmployee.vue'
-import addEmployee from './components/employee/addEmployee.vue'
-
 const router = createRouter({
     history: createWebHashHistory(),
     routes: [
-        { path: '/', redirect: '/emp' },
+        {path: '/', redirect: '/emp'},
         ,
         {
             path: '/emp',
-            component: emp,
+            component: () => import('./components/employee/emp.vue'),
             children: [
-                {path: 'tableEmployee', component: tableEmployee},
-                {path: 'addemployee', component: addEmployee},
+                {path: 'tableEmployee', component: () => import('./components/employee/tableEmployee.vue'),},
+                {path: 'addemployee', component: () => import('./components/employee/addEmployee.vue'),},
 
             ]
         },
+        {
+            path: '/salary',
+            component: () => import('./components/salaryManagement/salary.vue'),
+        },
+        {
+            path: '/style',
+            component: () => import('./components/styleManagement/style.vue'),
+        },
+        {
+            path: '/test',
+            component: () => import('./components/test.vue'),
+        }
 
     ]
 })

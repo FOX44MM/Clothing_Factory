@@ -1,27 +1,52 @@
-<script setup>
-
-</script>
-
 <template>
   <form>
-    <p>姓名：</p><input type="text" name="" id=""><br>
-    <p>电话号：</p><input type="number" maxlength="11" name="" id=""><br>
+    <p>姓名：</p><input type="text" maxlength="8" v-model="name"><br>
+    <p>电话号：</p><input type="text" maxlength="11" minlength="11" v-model="phone"><br>
 
     <p>性别：</p>
-    <select name="" id="">
-      <option value="女">女</option>
+    <select v-model="gender">
+      <option value="女" selected>女</option>
       <option value="男">男</option>
     </select><br>
 
-    <button type="submit">添加</button>
+    <button @click="addemp">添加</button>
   </form>
 
 
 </template>
 
+
+<script setup>
+
+import {ref} from "vue";
+import axios from "axios";
+
+let name = ref()
+let phone = ref()
+let gender = ref()
+
+// 添加员工
+function addemp() {
+  console.log("添加员工")
+  console.log(name.value, phone.value, gender.value)
+
+  axios.post('/api/employee', {
+    name: name.value,
+    phone: phone.value,
+    gender: gender.value
+  }).then(res => {
+    // 添加成功
+    console.log("请求成功！")
+    console.log(res)
+  })
+}
+
+</script>
+
+
 <style scoped>
-  p{
-    display: inline-block;
-    margin: 8px;
-  }
+p {
+  display: inline-block;
+  margin: 8px;
+}
 </style>
