@@ -1,7 +1,7 @@
 <template>
   <form>
-    <p>姓名：</p><input type="text" maxlength="8" v-model="name"><br>
-    <p>电话号：</p><input type="text" maxlength="11" minlength="11" v-model="phone"><br>
+    <input type="text" maxlength="8" v-model="name" placeholder="姓名"><br>
+    <input type="text" maxlength="11" minlength="11" v-model="phone" placeholder="电话号"><br>
 
     <p>性别：</p>
     <select v-model="gender">

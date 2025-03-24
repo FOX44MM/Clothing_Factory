@@ -1,6 +1,10 @@
 <template>
 <h2>款式管理</h2>
-  <el-button>按钮</el-button>
+  <router-link to="/style/stylelist">查看</router-link>
+  <router-link to="/style/newstyle">新建</router-link>
+  <hr>
+
+  <router-view></router-view>
 </template>
 
 <script setup>
@@ -8,5 +12,7 @@
 </script>
 
 <style scoped>
-
-</style>
+a{
+  padding: 4px;
+}
+</style>  

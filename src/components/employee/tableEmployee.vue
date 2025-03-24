@@ -2,56 +2,20 @@
   <hr>
   <!-- 操作 -->
 
-  <!--  查询 按姓名或工号 -->
+  <!--  查询 按姓名 -->
   <form>
-    <p>姓名：</p><input type="text" name="" id="">
-    <p>工号：</p><input type="text" name="" id="">
+    <el-input style="width:200px" placeholder="姓名"></el-input>
 
-    <button @click="getAllEmp">查询</button>
-    <button type="reset">重置</button>
+    <el-button  @click="getAllEmp" style="margin: 10px">查询</el-button>
+
   </form>
 
-
-  <!-- 表格 -->
-
-
-  <!--  <table>-->
-  <!--    <thead>-->
-  <!--    <tr>-->
-  <!--      <th>工号</th>-->
-  <!--      <th>姓名</th>-->
-  <!--      <th>性别</th>-->
-  <!--      <th>电话</th>-->
-  <!--      <th>操作</th>-->
-  <!--    </tr>-->
-  <!--    </thead>-->
-  <!--    <tbody>-->
-  <!--    <tr v-for="(item,index) in list">-->
-  <!--      <td>{{ item.id }}</td>-->
-  <!--      <th>{{ item.name }}</th>-->
-  <!--      <th>{{ item.gender }}</th>-->
-  <!--      <th>{{ item.phoneNumber }}</th>-->
-  <!--      <th>-->
-  <!--        <button type="button" @click="sayname(index)">编辑</button>-->
-  <!--        <button type="button" @click="deleteEmpById(item.id)">删除</button>-->
-  <!--      </th>-->
-  <!--    </tr>-->
-  <!--    </tbody>-->
-  <!--  </table>-->
-
-  <!--显示多少内容-->
-  <!--  <select v-model="limit">-->
-  <!--    <option value=10>10条/页</option>-->
-  <!--    <option value=20>20条/页</option>-->
-  <!--    <option value=50>50条/页</option>-->
-  <!--    <option value=100>100条/页</option>-->
-  <!--  </select>-->
-  <el-table :data="list" style="width: 100%" border stripe>
-    <el-table-column prop="id" label="工号"></el-table-column>
-    <el-table-column prop="name" label="姓名"></el-table-column>
-    <el-table-column prop="gender" label="性别"></el-table-column>
-    <el-table-column prop="phoneNumber" label="电话"></el-table-column>
-    <el-table-column prop="department" label="部门"></el-table-column>
+  <el-table :data="list" style="width: 100%" border stripe >
+    <el-table-column prop="id" label="工号" width="80px"></el-table-column>
+    <el-table-column prop="name" label="姓名" width="80px"></el-table-column>
+    <el-table-column prop="gender" label="性别" width="80px"></el-table-column>
+    <el-table-column prop="phoneNumber" label="电话" width="200px"></el-table-column>
+    <el-table-column prop="department" label="部门" width="80px"></el-table-column>
     <el-table-column label="操作">
       <template #default="scope">
         <el-button size="small" @click="handleEdit(scope.$index, scope.row)">
@@ -73,6 +37,7 @@ import axios from "axios";
 
 // let apiUrl = "/api/employee"  // api 地址
 let apiUrl = "http://localhost:8081/api/employee"  // api 地址
+let search = ref("")
 let list = ref([])      // 员工列表
 let limit = ref(10);    // 显示限制
 
@@ -135,6 +100,10 @@ function deleteEmpById(row) {
 <style scoped>
 p {
   display: inline-block;
+  margin: 10px;
+}
+button {
+  padding: 10px;
 }
 
 table, th, td {

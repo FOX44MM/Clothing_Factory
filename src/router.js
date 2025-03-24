@@ -3,7 +3,7 @@ import {createRouter, createWebHashHistory, createWebHistory} from 'vue-router'
 const router = createRouter({
     history: createWebHashHistory(),
     routes: [
-        {path: '/', redirect: '/emp'},
+        {path: '/', redirect: '/style'},
         ,
         {
             path: '/emp',
@@ -21,6 +21,17 @@ const router = createRouter({
         {
             path: '/style',
             component: () => import('./components/styleManagement/style.vue'),
+            children: [
+                {path: 'stylelist', component: () => import('./components/styleManagement/stylelist.vue'),},
+                {path: 'newstyle', component: () => import('./components/styleManagement/newStyle.vue'),},
+            ]
+        },
+        {
+            path: '/wp',
+            component: () => import('./components/workingprocedure/Wp.vue'),
+            children: [
+                {path: 'wplist', component: () => import('./components/workingprocedure/WpList.vue'),},
+            ]
         },
         {
             path: '/test',
