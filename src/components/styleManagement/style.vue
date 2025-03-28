@@ -38,7 +38,7 @@
 
     <el-table-column label="操作">
       <template #default="scope">
-        <el-button type="danger" @click="deleteStyle">删除</el-button>
+        <el-button type="danger" @click="showDeleteStyle(scope.row)">删除</el-button>
         <el-button type="primary" @click="editStyle(scope.row)">编辑</el-button>
         <el-button @click="showStyleWp = true">修改工序</el-button>
       </template>
@@ -176,6 +176,7 @@
 <script setup>
 import axios from "axios";
 import {onMounted, reactive, ref} from "vue";
+import {ElMessage} from "element-plus";
 
 // 页面加载后运行
 onMounted(() => {
@@ -239,18 +240,31 @@ function editStyle(row) {
   axios.put(`http://localhost:8081/api/style/${row.styleName}`, editStyleInfo)
 }
 
+
+// todo 删除功能完善
+// todo 获取StyleNum
+let DeleteStyleNum = ref("")
+
+function showDeleteStyle(row) {
+  deleteStyleWarning.value = true;  // 是否删除警告
+  console.log("删除款式:" + row.styleNum)
+  DeleteStyleNum.value = row.styleNum;
+}
+
 function deleteStyle() {
-  deleteStyleWarning.value = true;
-
-  console.log("删除款式")
-  // todo 删除功能完善
-  axios.delete(apiUrl + '/' + '')// todo 添加列内容
+  axios.delete(apiUrl + '/' + DeleteStyleNum.value)// todo 添加列内容
       .then(res => {
-
+        // console.log(res)
+        deleteStyleWarning.value = false;
       })
 
+  // 关闭删除警告
   // 重新加载
-  getAllStyle()
+  ElMessage({
+    message: "成功删除员工",
+    type: "success",
+  })
+  refreshTable()
 }
 
 function clearNewStyle() {  //清除
@@ -260,30 +274,46 @@ function clearNewStyle() {  //清除
   newStyle.remark = "";
 }
 
-function saveStyle() {  // 保存款式
+
+// 保存款式
+function saveStyle() {
   console.log("保存款式")
   axios.post(apiUrl,
       {
         styleName: newStyle.styleName,
         styleNum: newStyle.styleNum,
         customerName: newStyle.customerName,
-        comment: newStyle.remark,
+        remark: newStyle.remark,
       }
   ).then(res => {
-    console.log(res)
+    // todo 判断返回内容的结果是否添加成功
+    ElMessage({
+      message: "成功添加员工",
+      type: "success",
+    })
   })
+
+  showNewStyle.value = false;
+  refreshTable()
 }
 
-function getAllStyle() {
-  console.log("获取所有的款式")
+function refreshTable() {
+  setTimeout(() => {
+    getAllStyle()
+  }, 200)
+}
+
+function getAllStyle(mesg) {
+  // console.log(mesg)
+  list.value = []
   axios.get(apiUrl)
       .then((res) => {
-        list.value = res.data.data
-        console.log(list.value)
-
+        // console.log(data)
+        list.value = res.data.data;
       })
 }
 
+// 添加工序到款式
 function addWptoStyle() {
 
 }
