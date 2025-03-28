@@ -20,18 +20,11 @@ const router = createRouter({
         },
         {
             path: '/style',
-            component: () => import('./components/styleManagement/style.vue'),
-            children: [
-                {path: 'stylelist', component: () => import('./components/styleManagement/stylelist.vue'),},
-                {path: 'newstyle', component: () => import('./components/styleManagement/newStyle.vue'),},
-            ]
+            component: () => import('./components/styleManagement/style.vue')
         },
         {
             path: '/wp',
             component: () => import('./components/workingprocedure/Wp.vue'),
-            children: [
-                {path: 'wplist', component: () => import('./components/workingprocedure/WpList.vue'),},
-            ]
         },
         {
             path: '/test',
