@@ -7,8 +7,10 @@
   <br><br>
   <!-- 主表 -->
   <el-table :data="list" border stripe style="width: 100%" @selection-change="handleSelectionChange">
-    <el-table-column type="selection" width="40">
-    </el-table-column>
+    <!--  复选框  -->
+    <!--    <el-table-column type="selection" width="40">-->
+    <!--    </el-table-column>-->
+
     <el-table-column
         label="款式"
         prop="styleName"
@@ -39,7 +41,7 @@
     <el-table-column label="操作">
       <template #default="scope">
         <el-button type="danger" @click="showDeleteStyle(scope.row)">删除</el-button>
-        <el-button type="primary" @click="editStyle(scope.row)">编辑</el-button>
+        <el-button type="primary" @click="showEditStyleDialog(scope.row)">编辑</el-button>
         <el-button @click="showStyleWp = true">修改工序</el-button>
       </template>
     </el-table-column>
@@ -97,7 +99,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-button type="success" @click="saveStyle">保存</el-button>
+          <el-button type="success" @click="editStyle">确认</el-button>
           <el-button type="warning" @click="clearNewStyle">清除</el-button>
         </el-col>
       </el-row>
@@ -196,7 +198,7 @@ let showWptoStyle = ref(false); // 显示 工序添加到款式 对话框
 
 // --------------------------- 函数区 -----------------------------
 
-// todo 将新款式和编辑款式融合为一个
+// todo 将新款式和编辑款式融合为一个使用
 // 添加新款式
 let newStyle = reactive({
   styleName: "",
@@ -226,23 +228,38 @@ const handleSelectionChange = (val) => {
 
 
 //todo 款式修改
-function editStyle(row) {
-  //todo 获取行内信息
-  //todo 赋值给对话框中的内容
+function showEditStyleDialog(row) {
   console.log("修改款式")
-  showEditStyle.value = true;
+
+  // 获取行内信息，赋值给对话框中的内容
   editStyleInfo.styleName = row.styleName;
   editStyleInfo.styleNum = row.styleNum;
   editStyleInfo.customerName = row.customerName;
   editStyleInfo.remark = row.remark;
 
-  //todo  编辑款式后向后端发送修改
-  axios.put(`http://localhost:8081/api/style/${row.styleName}`, editStyleInfo)
+  showEditStyle.value = true; // 显示对话框
 }
 
+function editStyle() {
+  //  编辑款式后向后端发送修改
+  //todo 判断修改的款号是否在数据库中已存在
+  //todo 可修改款号
+  axios.put(apiUrl, {
+    styleName: editStyleInfo.styleName,
+    styleNum: editStyleInfo.styleNum,
+    customerName: editStyleInfo.customerName,
+    remark: editStyleInfo.remark,
+  })
 
-// todo 删除功能完善
-// todo 获取StyleNum
+  showEditStyle.value = false; // 关闭对话框
+
+  ElMessage.success({
+    message: "修改成功"
+  })
+  // 刷新数据
+  refreshTable()
+}
+
 let DeleteStyleNum = ref("")
 
 function showDeleteStyle(row) {
@@ -252,18 +269,18 @@ function showDeleteStyle(row) {
 }
 
 function deleteStyle() {
-  axios.delete(apiUrl + '/' + DeleteStyleNum.value)// todo 添加列内容
+  axios.delete(apiUrl + '/' + DeleteStyleNum.value)
       .then(res => {
-        // console.log(res)
-        deleteStyleWarning.value = false;
       })
 
-  // 关闭删除警告
-  // 重新加载
-  ElMessage({
+  deleteStyleWarning.value = false;  // 关闭删除警告
+
+//  提示
+  ElMessage.success({
     message: "成功删除员工",
-    type: "success",
   })
+  // 重新加载
+
   refreshTable()
 }
 
@@ -277,7 +294,8 @@ function clearNewStyle() {  //清除
 
 // 保存款式
 function saveStyle() {
-  console.log("保存款式")
+  // console.log("保存款式")
+  // todo 判断数据中是否已存在相同款号，如果存在弹出错误
   axios.post(apiUrl,
       {
         styleName: newStyle.styleName,
@@ -287,9 +305,8 @@ function saveStyle() {
       }
   ).then(res => {
     // todo 判断返回内容的结果是否添加成功
-    ElMessage({
-      message: "成功添加员工",
-      type: "success",
+    ElMessage.success({
+      message: "成功添加员工"
     })
   })
 
@@ -297,14 +314,14 @@ function saveStyle() {
   refreshTable()
 }
 
+// 刷新表格
 function refreshTable() {
   setTimeout(() => {
     getAllStyle()
   }, 200)
 }
 
-function getAllStyle(mesg) {
-  // console.log(mesg)
+function getAllStyle() {
   list.value = []
   axios.get(apiUrl)
       .then((res) => {
