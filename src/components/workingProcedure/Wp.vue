@@ -6,7 +6,7 @@
   <el-button @click="showAddWpDialog = true" type="primary">添加</el-button>
   <br><br>
 
-  <el-dialog v-model="showAddWpDialog" title="新建工序">
+  <el-dialog draggable v-model="showAddWpDialog" title="新建工序">
     <el-row :gutter="20">
       <el-col :span="6">
         <el-input placeholder="工序号" v-model="NewWp.code"></el-input>
@@ -27,7 +27,7 @@
     <el-input type="textarea" placeholder="备注" :autosize="{minRows:6}" v-model="NewWp.remark"></el-input>
   </el-dialog>
 
-  <el-dialog v-model="showEditWpDialog" title="编辑工序">
+  <el-dialog draggable v-model="showEditWpDialog" title="编辑工序">
     <el-row :gutter="20">
       <el-col :span="6">
         <el-input placeholder="工序号" v-model="editWp.code"></el-input>

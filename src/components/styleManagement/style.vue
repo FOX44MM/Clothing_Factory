@@ -2,7 +2,6 @@
   <h1>款式管理</h1>
   <hr>
 
-  <!--  <el-button @click="getAllStyle">获取</el-button>-->
   <el-button type="success" @click="showNewStyle = true">添加</el-button>
   <br><br>
   <!-- 主表 -->
@@ -43,10 +42,40 @@
         prop="createTime"
         width="180px"
     ></el-table-column>
-<!--    todo 使用popconfirm替代弹出层-->
+    <!--    todo 使用popconfirm替代弹出层-->
     <el-table-column label="操作">
       <template #default="scope">
-        <el-button type="danger" @click="showDeleteStyle(scope.row)">删除</el-button>
+        <!--    todo 改为popconfirm    -->
+
+
+        <!--        <el-button type="danger" @click="showDeleteStyle(scope.row)">删除</el-button>-->
+        <el-popconfirm v-if="!scope.row.status"
+                       title="确定删除?"
+                       width="220"
+
+                       :icon="Delete"
+                       icon-color="#ff6e63"
+        >
+
+          <template #reference>
+            <el-button type="danger">删除</el-button>
+          </template>
+
+          <template #actions="{ confirm, cancel }">
+            <el-button size="small" @click="cancel">取消</el-button>
+            <el-button
+                type="danger"
+                size="small"
+                @click="deleteStyle(scope.row)"
+            >
+              确定!
+            </el-button>
+          </template>
+
+
+        </el-popconfirm>
+
+
         <el-button type="primary" @click="showEditStyleDialog(scope.row)">编辑</el-button>
         <el-button @click="showStyleWp = true">修改工序</el-button>
       </template>
@@ -162,24 +191,6 @@
     </el-table>
   </el-dialog>
 
-  <!-- 删除警告对话框 -->
-  <el-dialog
-      v-model="deleteStyleWarning"
-      title="警告"
-      width="500"
-      align-center
-  >
-    <span>请确认是否删除！！！</span>
-    <template #footer>
-      <div class="dialog-footer">
-        <el-button @click="deleteStyleWarning = false">取消</el-button>
-        <el-button type="primary" @click="deleteStyle">
-          确定
-        </el-button>
-      </div>
-    </template>
-  </el-dialog>
-
 
 </template>
 
@@ -189,6 +200,7 @@
 import axios from "axios";
 import {onMounted, reactive, ref} from "vue";
 import {ElMessage} from "element-plus";
+import {Delete} from "@element-plus/icons-vue";
 
 // 页面加载后运行
 onMounted(() => {
@@ -274,16 +286,9 @@ function editStyle() {
   refreshTable()
 }
 
-let DeleteStyleNum = ref("")
 
-function showDeleteStyle(row) {
-  deleteStyleWarning.value = true;  // 是否删除警告
-  console.log("删除款式:" + row.styleNum)
-  DeleteStyleNum.value = row.styleNum;
-}
-
-function deleteStyle() {
-  axios.delete(apiUrl + '/' + DeleteStyleNum.value)
+function deleteStyle(row) {
+  axios.delete(apiUrl + '/' + row.styleNum)
       .then(res => {
       })
 
@@ -338,10 +343,11 @@ function refreshTable() {
 // todo 获取所有的工序
 function getAllWp() {
   axios.get(apiUrl)
-  .then(res => {
+      .then(res => {
 
-  })
+      })
 }
+
 function getAllStyle() {
   list.value = []
   axios.get(apiUrl + "/list")
