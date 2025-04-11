@@ -54,16 +54,40 @@
     <el-table-column prop="code" label="编码"></el-table-column>
     <el-table-column prop="wp" label="工序"></el-table-column>
     <el-table-column prop="remark" label="备注"></el-table-column>
-<!--    <el-table-column prop="status" label="状态" width="80"></el-table-column>-->
+    <!--    <el-table-column prop="status" label="状态" width="80"></el-table-column>-->
     <el-table-column label="操作">
       <template #default="scope">
-        <!--    todo 禁用功能  disableWp(scope.row)  -->
         <el-button v-if="scope.row.status" type="danger" @click="setStatus(scope.row,false)">禁用</el-button>
 
         <template v-else>
-          <el-button type="success" @click="setStatus(scope.row,true)">启用</el-button>
-          <el-button v-if="list.status != true" type="warning" @click="EditWp(scope.row)">编辑</el-button>
-          <el-button v-if="list.status != true" type="danger" @click="deleteWp(scope.row)">删除</el-button>
+          <el-button v-if="!scope.row.status" type="success" @click="setStatus(scope.row,true)">启用</el-button>
+          <el-button v-if="!scope.row.status" type="warning" @click="EditWp(scope.row)">编辑</el-button>
+
+          <!--     在此处使用气泡弹出来确认     -->
+          <!--          <el-button type="danger" @click="deleteWp(scope.row)">删除</el-button>-->
+          <el-popconfirm v-if="!scope.row.status"
+                         title="确定删除?"
+                         width="220"
+
+                         :icon="Delete"
+                         icon-color="#ff6e63"
+          >
+            <template #reference>
+              <el-button type="danger">删除</el-button>
+            </template>
+            <template #actions="{ confirm, cancel }">
+              <el-button size="small" @click="cancel">取消</el-button>
+              <el-button
+                  type="danger"
+                  size="small"
+                  @click="deleteWp(scope.row)"
+              >
+                确定!
+              </el-button>
+            </template>
+          </el-popconfirm>
+
+
         </template>
 
       </template>
@@ -79,6 +103,9 @@
 import axios from "axios";
 import {onMounted, reactive, ref} from "vue";
 import {base_api} from "../utils/api.js";
+import {ElMessage} from "element-plus";
+import {Delete} from '@element-plus/icons-vue'
+
 
 var apiUrl = base_api + '/api/wp';
 
@@ -98,6 +125,7 @@ let NewWp = reactive({
 })
 
 let editWp = reactive({
+  id: 0,
   code: "",
   wp: "",
   remark: "",
@@ -120,6 +148,10 @@ function addWp() {
 
   showAddWpDialog.value = false;
   refreshTable()
+  ElMessage({
+    type: "success",
+    message: "添加成功"
+  })
 }
 
 // 删除工序
@@ -127,23 +159,27 @@ function deleteWp(row) {
   console.log("要删除的code：", row.code)
   axios.delete(apiUrl + '/' + row.code)
   refreshTable()
-  console.log(row)
+  ElMessage({
+    type: "success",
+    message: "删除完成"
+  })
+  // console.log(row)
 }
 
 // 编辑工序
 function EditWp(row) {
+  editWp.id = row.id
   editWp.code = row.code
   editWp.wp = row.wp
   editWp.remark = row.remark
   editWp.status = row.status
 
   showEditWpDialog.value = true
-
-  // console.log("ok")
 }
 
 function setStatus(row, bool) {
   axios.put(apiUrl, {
+    id: row.id,
     code: row.code,
     wp: row.wp,
     remark: row.remark,
@@ -155,6 +191,7 @@ function setStatus(row, bool) {
 
 function EditWpDialog() {
   axios.put(apiUrl, {
+    id: editWp.id,
     code: editWp.code,
     wp: editWp.wp,
     remark: editWp.remark,
@@ -162,6 +199,13 @@ function EditWpDialog() {
   }).then(res => {
     showEditWpDialog.value = false
     // todo  提示修改成功
+  })
+
+
+  refreshTable()
+  ElMessage({
+    type: "success",
+    message: "修改完成"
   })
 }
 
