@@ -54,14 +54,14 @@
     <el-table-column prop="code" label="编码"></el-table-column>
     <el-table-column prop="wp" label="工序"></el-table-column>
     <el-table-column prop="remark" label="备注"></el-table-column>
-    <el-table-column prop="status" label="状态" width="80"></el-table-column>
+<!--    <el-table-column prop="status" label="状态" width="80"></el-table-column>-->
     <el-table-column label="操作">
       <template #default="scope">
         <!--    todo 禁用功能  disableWp(scope.row)  -->
-        <el-button v-if="scope.row.status" type="danger" @click="list.status = false">禁用</el-button>
+        <el-button v-if="scope.row.status" type="danger" @click="setStatus(scope.row,false)">禁用</el-button>
 
         <template v-else>
-          <el-button @click="list.status = true" type="success">启用</el-button>
+          <el-button type="success" @click="setStatus(scope.row,true)">启用</el-button>
           <el-button v-if="list.status != true" type="warning" @click="EditWp(scope.row)">编辑</el-button>
           <el-button v-if="list.status != true" type="danger" @click="deleteWp(scope.row)">删除</el-button>
         </template>
@@ -100,7 +100,8 @@ let NewWp = reactive({
 let editWp = reactive({
   code: "",
   wp: "",
-  remark: ""
+  remark: "",
+  status: false,
 })
 
 // 添加新工序
@@ -134,23 +135,34 @@ function EditWp(row) {
   editWp.code = row.code
   editWp.wp = row.wp
   editWp.remark = row.remark
-  console.log("editWp", editWp)
+  editWp.status = row.status
 
   showEditWpDialog.value = true
 
   // console.log("ok")
 }
 
+function setStatus(row, bool) {
+  axios.put(apiUrl, {
+    code: row.code,
+    wp: row.wp,
+    remark: row.remark,
+    status: bool
+  })
+  console.log("修改状态")
+  refreshTable()
+}
+
 function EditWpDialog() {
   axios.put(apiUrl, {
     code: editWp.code,
     wp: editWp.wp,
-    remark: editWp.remark
+    remark: editWp.remark,
+    status: editWp.status
   }).then(res => {
     showEditWpDialog.value = false
     // todo  提示修改成功
   })
-  // console.log("editWp", editWp)
 }
 
 function refreshTable() {
