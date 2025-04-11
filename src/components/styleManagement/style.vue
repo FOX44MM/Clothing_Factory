@@ -10,7 +10,13 @@
     <!--  复选框  -->
     <!--    <el-table-column type="selection" width="40">-->
     <!--    </el-table-column>-->
+    <el-table-column
+        label="唯一值"
+        prop="id"
+        width="60px"
+    >
 
+    </el-table-column>
     <el-table-column
         label="款式"
         prop="styleName"
@@ -37,7 +43,7 @@
         prop="createTime"
         width="180px"
     ></el-table-column>
-
+<!--    todo 使用popconfirm替代弹出层-->
     <el-table-column label="操作">
       <template #default="scope">
         <el-button type="danger" @click="showDeleteStyle(scope.row)">删除</el-button>
@@ -116,17 +122,19 @@
   <el-dialog draggable title="款式的工序信息" v-model="showStyleWp" width="80%">
     <!-- todo 快速添加工序  -->
     <el-form>
-      <el-row :gutter="20">
+      <el-row :gutter="8">
         <el-col :span="6">
           <el-input placeholder="快速添加工序"></el-input>
         </el-col>
-
         <el-col :span="6">
-          <el-button>提交</el-button>
+          <el-button>添加</el-button>
+        </el-col>
+        <el-col :span="6">
+          <el-button type="success">添加</el-button>
         </el-col>
       </el-row>
     </el-form>
-
+    <hr>
     <div>
       <el-button @click="addWptoStyle">添加工序</el-button>
       <el-table>
@@ -174,8 +182,10 @@
 
 
 </template>
+
 <!---------------------------------- js代码 -------------------------------------->
 <script setup>
+
 import axios from "axios";
 import {onMounted, reactive, ref} from "vue";
 import {ElMessage} from "element-plus";
@@ -201,6 +211,7 @@ let showWptoStyle = ref(false); // 显示 工序添加到款式 对话框
 // todo 将新款式和编辑款式融合为一个使用
 // 添加新款式
 let newStyle = reactive({
+  id: "",
   styleName: "",
   styleNum: "",
   customerName: "",
@@ -208,6 +219,7 @@ let newStyle = reactive({
 })
 // 编辑款式
 let editStyleInfo = reactive({
+  id: "",
   styleName: "",
   styleNum: "",
   customerName: "",
@@ -232,6 +244,7 @@ function showEditStyleDialog(row) {
   console.log("修改款式")
 
   // 获取行内信息，赋值给对话框中的内容
+  editStyleInfo.id = row.id
   editStyleInfo.styleName = row.styleName;
   editStyleInfo.styleNum = row.styleNum;
   editStyleInfo.customerName = row.customerName;
@@ -245,6 +258,7 @@ function editStyle() {
   //todo 判断修改的款号是否在数据库中已存在
   //todo 可修改款号
   axios.put(apiUrl, {
+    id: editStyleInfo.id,
     styleName: editStyleInfo.styleName,
     styleNum: editStyleInfo.styleNum,
     customerName: editStyleInfo.customerName,
@@ -321,13 +335,24 @@ function refreshTable() {
   }, 200)
 }
 
+// todo 获取所有的工序
+function getAllWp() {
+  axios.get(apiUrl)
+  .then(res => {
+
+  })
+}
 function getAllStyle() {
   list.value = []
-  axios.get(apiUrl)
+  axios.get(apiUrl + "/list")
       .then((res) => {
         // console.log(data)
         list.value = res.data.data;
       })
+}
+
+function getProcedureList() {
+  axios.get("http://localhost:8081/api/wp" + "/list")
 }
 
 // 添加工序到款式
