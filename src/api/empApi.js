@@ -1,13 +1,5 @@
-import axios from "axios";
-import {ElMessage} from "element-plus";
-import {reactive} from "vue";
-import {apiUrl} from "./api.js";
+import {apiClient} from "./api.js";
 
-let apiClient = axios.create({
-    baseURL: apiUrl,
-    headers: {},
-    timeout: 5000,
-})
 
 // 增加用户
 export async function addEmp(emp) {
@@ -37,5 +29,5 @@ export async function getAllEmp(pageNum, pageSize) {
             pageSize: pageSize,
         }
     })
-    return Response.data.data
+    return Response.data.data;
 }

@@ -2,48 +2,40 @@
   <h1>款式管理</h1>
   <hr>
 
-  <el-button type="success" @click="showNewStyle = true">添加</el-button>
+  <el-button type="success" @click="handleAddStyleButton">添加</el-button>
   <br><br>
   <!-- 主表 -->
-  <div style="height:100%">
-    <!--  todo 添加分页支持  -->
-    <el-table :data="list" border stripe style="width: 100%" @selection-change="handleSelectionChange">
-      <!--  复选框  -->
-      <!--    <el-table-column type="selection" width="40">-->
-      <!--    </el-table-column>-->
-      <el-table-column
-          label="唯一值"
-          prop="id"
-          width="60px"
-      >
+  <div style="height:100%" class="table-container">
+    <!--  ----------------表格----------------  -->
+    <el-table :data="list" border stripe style="width: 100%">
 
-      </el-table-column>
+      <!--          <el-table-column type="selection" width="40"/>-->
+      <!--      <el-table-column label="唯一值" prop="id" width="60px"/>-->
       <el-table-column
           label="款式"
           prop="styleName"
-          width="100px"
-      >
-      </el-table-column>
+          width="180px"
+      />
       <el-table-column
           label="客户"
           prop="customerName"
-          width="140px"
-      ></el-table-column>
+          width="80px"
+      />
       <el-table-column
           label="款号"
           prop="styleNum"
           width="180px"
-      ></el-table-column>
+      />
       <el-table-column
           label="备注"
           prop="remark"
 
-      ></el-table-column>
+      />
       <el-table-column
           label="创建时间"
           prop="createTime"
           width="180px"
-      ></el-table-column>
+      />
       <el-table-column label="操作">
         <template #default="scope">
           <el-popconfirm v-if="!scope.row.status"
@@ -59,90 +51,65 @@
 
             <template #actions="{ confirm, cancel }">
               <el-button size="small" @click="cancel">取消</el-button>
-              <el-button type="danger" size="small" @click="deleteStyle(scope.row)">确定!</el-button>
+              <el-button type="danger" size="small" @click="deleteStyleById(scope.row)">确定!</el-button>
             </template>
           </el-popconfirm>
 
-
-          <el-button type="primary" @click="showEditStyleDialog(scope.row)">编辑</el-button>
+          <el-button type="primary" @click="handleEditStyleButton(scope.row)">编辑</el-button>
           <el-button @click="showStyleWp = true">修改工序</el-button>
         </template>
       </el-table-column>
     </el-table>
     <br>
     <!--  总数total 每页数量 当前页数current-page 每页数量选择器  -->
-    <el-pagination
-        background
-        layout="prev, pager, next"
-        :total="20"
-        page-size="10"
-    />
+
+    <div class="pagination-container">
+      <el-pagination
+          layout="prev, pager, next,sizes"
+          background
+          v-model:total="total"
+          :page-sizes="[10, 20, 50]"
+          v-model:current-page="pageNum"
+          v-model:page-size="pageSize"
+          @change="fetchList"
+      />
+    </div>
+
   </div>
 
-  <!-- --------------------------------------对话框-------------------------------------- -->
-  <el-dialog title="新建款式" v-model="showNewStyle" draggable>
-    <el-form :model="newStyle">
+  <!-- --------------------------------------修改和新增 款式 对话框-------------------------------------- -->
+  <el-dialog :title="styleEditDialog.title" v-model="styleEditDialog.visible" draggable>
+    <el-form :model="style">
       <el-row :gutter="20">
         <el-col :span="6">
-          <el-form-item>
-            <el-input v-model="newStyle.styleName" placeholder="款名"></el-input>
+          <el-form-item label="款名:">
+            <el-input v-model="style.styleName" placeholder=""></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-form-item>
-            <el-input v-model="newStyle.styleNum" placeholder="款号"></el-input>
+          <el-form-item label="款号:">
+            <el-input v-model="style.styleNum" placeholder=""></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-form-item>
-            <el-input v-model="newStyle.customerName" placeholder="客户姓名"></el-input>
+          <el-form-item label="客户姓名:">
+            <el-input v-model="style.customerName" placeholder=""></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-button type="success" @click="saveStyle">保存</el-button>
+          <el-button type="success" @click="handleConfirmButton">确认</el-button>
           <el-button type="warning" @click="clearNewStyle">清除</el-button>
         </el-col>
       </el-row>
 
       <el-form-item>
-        <el-input type="textarea" v-model="newStyle.remark" placeholder="备注" :autosize="{minRows:6}"></el-input>
+        <el-input type="textarea" v-model="style.remark" placeholder="备注" :autosize="{minRows:6}"></el-input>
       </el-form-item>
 
 
     </el-form>
   </el-dialog>
-  <!-- 修改款式 -->
-  <el-dialog title="修改款式" v-model="showEditStyle" draggable>
-    <el-form :model="editStyleInfo">
-      <el-row :gutter="20">
-        <el-col :span="6">
-          <el-form-item>
-            <el-input v-model="editStyleInfo.styleName" placeholder="款名"></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item>
-            <el-input v-model="editStyleInfo.styleNum" placeholder="款号"></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item>
-            <el-input v-model="editStyleInfo.customerName" placeholder="客户姓名"></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-button type="success" @click="editStyle">确认</el-button>
-          <el-button type="warning" @click="clearNewStyle">清除</el-button>
-        </el-col>
-      </el-row>
-
-      <el-form-item>
-        <el-input type="textarea" v-model="editStyleInfo.remark" placeholder="备注" :autosize="{minRows:6}"></el-input>
-      </el-form-item>
-
-
-    </el-form>
-  </el-dialog>
+  <!-- ---------------------------------------------------------------------------- -->
 
   <!-- 款式设置工序 对话框 -->
   <el-dialog draggable title="款式的工序信息" v-model="showStyleWp" width="80%">
@@ -165,10 +132,10 @@
       <el-button @click="addWptoStyle">添加工序</el-button>
       <el-table>
 
-        <el-table-column label="操作"></el-table-column>
-        <el-table-column label="序号"></el-table-column>
-        <el-table-column label="编码"></el-table-column>
-        <el-table-column label="工序"></el-table-column>
+        <el-table-column label="操作"/>
+        <el-table-column label="序号"/>
+        <el-table-column label="编码"/>
+        <el-table-column label="工序"/>
       </el-table>
     </div>
 
@@ -184,7 +151,7 @@
           <el-checkbox></el-checkbox>
         </template>
       </el-table-column>
-      <el-table-column></el-table-column>
+      <el-table-column/>
     </el-table>
   </el-dialog>
 
@@ -198,6 +165,7 @@ import axios from "axios";
 import {onMounted, reactive, ref} from "vue";
 import {ElMessage} from "element-plus";
 import {Delete} from "@element-plus/icons-vue";
+import * as api from "../../api/styleApi.js";
 
 // 页面加载后运行
 onMounted(() => {
@@ -207,150 +175,111 @@ onMounted(() => {
 // --------------------------- 变量区 ---------------------------
 var apiUrl = "http://localhost:8081/api/style"
 
-let list = ref([])  // 主表内容
+let list = ref([])  // 表内容
 
-let showNewStyle = ref(false);  //显示  新款式   对话表
-let showEditStyle = ref(false); //显示  编辑款式 对话框
-let deleteStyleWarning = ref(false);  // 显示删除警告
+let style = reactive({  // 款式内容
+  id: "",
+  styleName: "",
+  styleNum: "",
+  customerName: "",
+  remark: "",
+})
+
+let styleEditDialog = reactive({  // 对话框属性
+  title: "",
+  visible: false
+})
+
+let total = ref(0);
+let pageSize = ref(10);
+let pageNum = ref(1);
+let handleConfirmButton;
 let showStyleWp = ref(false); // 显示 款式的工序 对话框
 let showWptoStyle = ref(false); // 显示 工序添加到款式 对话框
 
 // --------------------------- 函数区 -----------------------------
 
-// todo 将新款式和编辑款式融合为一个使用
-// 添加新款式
-let newStyle = reactive({
-  id: "",
-  styleName: "",
-  styleNum: "",
-  customerName: "",
-  remark: "",
-})
-// 编辑款式
-let editStyleInfo = reactive({
-  id: "",
-  styleName: "",
-  styleNum: "",
-  customerName: "",
-  remark: "",
-})
-
-let selectedRows = reactive([])
-//todo 现已加入 复选框设置，继续完善其功能
-//todo 提交保存的时候将选中的styleNum 款号 提交上去
-const handleSelectionChange = (val) => {
-  selectedRows.value = val;
-  console.log("当前选中的数据:", selectedRows.value);
-  console.log(selectedRows.value.map((item) => item.styleNum))
-};
-
-
-//todo 工序添加
-
-
-//todo 款式修改
-function showEditStyleDialog(row) {
-  console.log("修改款式")
-
-  // 获取行内信息，赋值给对话框中的内容
-  editStyleInfo.id = row.id
-  editStyleInfo.styleName = row.styleName;
-  editStyleInfo.styleNum = row.styleNum;
-  editStyleInfo.customerName = row.customerName;
-  editStyleInfo.remark = row.remark;
-
-  showEditStyle.value = true; // 显示对话框
-}
-
-function editStyle() {
-  //  编辑款式后向后端发送修改
-  //todo 判断修改的款号是否在数据库中已存在
-  //todo 可修改款号
-  axios.put(apiUrl, {
-    id: editStyleInfo.id,
-    styleName: editStyleInfo.styleName,
-    styleNum: editStyleInfo.styleNum,
-    customerName: editStyleInfo.customerName,
-    remark: editStyleInfo.remark,
-  })
-
-  showEditStyle.value = false; // 关闭对话框
-
-  ElMessage.success({
-    message: "修改成功"
-  })
-  // 刷新数据
-  refreshTable()
+// 清除款式内容
+function clearStyle() {
+  style.id = "";
+  style.styleName = "";
+  style.styleNum = "";
+  style.customerName = "";
+  style.remark = "";
 }
 
 
-function deleteStyle(row) {
-  axios.delete(apiUrl + '/' + row.styleNum)
-      .then(res => {
-      })
 
-  deleteStyleWarning.value = false;  // 关闭删除警告
+function handleAddStyleButton() { // 添加按钮
+  clearStyle()
+  styleEditDialog.visible = true;
+  styleEditDialog.title = "添加新款式";
 
-//  提示
+  handleConfirmButton = addStyle;
+}
+
+function handleEditStyleButton(row) { // 编辑按钮
+  styleEditDialog.visible = true;
+  styleEditDialog.title = "修改款式";
+  handleConfirmButton = updateStyle;
+  style.id = row.id;
+  style.styleName = row.styleName;
+  style.styleNum = row.styleNum;
+  style.customerName = row.customerName;
+  style.remark = row.remark;
+
+
+}
+
+// 新增款式
+async function addStyle() {
+  await api.addStyle(style) // 添加新款式
+  ElMessage.success({message: "成功添加员工"})  // 公告
+  styleEditDialog.visible = false;
+  fetchList()
+}
+
+// 删除款式
+async function deleteStyleById(row) {
+  await api.deleteStyleById(row.id)
   ElMessage.success({
     message: "成功删除员工",
   })
-  // 重新加载
-
-  refreshTable()
+  fetchList()  // 刷新表格
 }
+
+// 修改款式信息
+async function updateStyle() {
+  await api.updateStyle(style)
+  ElMessage.success({
+    message: "修改成功"
+  })
+  styleEditDialog.visible = false; // 关闭对话框
+  clearStyle()  // 清空
+  // 刷新数据
+  fetchList() // 刷新数据
+}
+
 
 function clearNewStyle() {  //清除
-  newStyle.styleName = "";
-  newStyle.styleNum = "";
-  newStyle.customerName = "";
-  newStyle.remark = "";
+  style.styleName = "";
+  style.styleNum = "";
+  style.customerName = "";
+  style.remark = "";
 }
 
-
-// 保存款式
-function saveStyle() {
-  // console.log("保存款式")
-  // todo 判断数据中是否已存在相同款号，如果存在弹出错误
-  axios.post(apiUrl,
-      {
-        styleName: newStyle.styleName,
-        styleNum: newStyle.styleNum,
-        customerName: newStyle.customerName,
-        remark: newStyle.remark,
-      }
-  ).then(res => {
-    // todo 判断返回内容的结果是否添加成功
-    ElMessage.success({
-      message: "成功添加员工"
-    })
-  })
-
-  showNewStyle.value = false;
-  refreshTable()
-}
 
 // 刷新表格
-function refreshTable() {
+function fetchList() {
   setTimeout(() => {
     getAllStyle()
   }, 200)
 }
 
-// todo 获取所有的工序
-function getAllWp() {
-  axios.get(apiUrl)
-      .then(res => {
-
-      })
-}
-
-function getAllStyle() {
-  list.value = []
-  axios.get(apiUrl + "/list")
-      .then((res) => {
-        list.value = res.data.data;
-      })
+async function getAllStyle() {
+  let data = await api.getAllStyle(pageNum.value, pageSize.value);
+  list.value = data.list
+  total = data.total
 }
 
 function getProcedureList() {
@@ -365,4 +294,22 @@ function addWptoStyle() {
 </script>
 
 <style scoped>
+.table-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 75vh;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.el-table {
+  flex: 1;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: right;
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
 </style>

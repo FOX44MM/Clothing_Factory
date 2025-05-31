@@ -6,7 +6,7 @@
   <form>
     <el-input style="width:200px" placeholder="姓名"></el-input>
 
-    <el-button @click="fetchEmpList" style="margin: 10px">查询</el-button>
+    <el-button @click="fetchList" style="margin: 10px">查询</el-button>
     <el-button @click="handleAddEmp" type="primary">添加用户</el-button>
   </form>
   <!-- 新员工添加弹窗 -->
@@ -36,9 +36,9 @@
   </el-dialog>
 
   <div class="table-container">
-    <el-table :data="list" style="width: 100%" border stripe>
+    <el-table :data="list" style="width: 100%" border stripe table-layout="fixed">
       <el-table-column prop="id" label="工号" width="80px"></el-table-column>
-      <el-table-column prop="name" label="姓名" width="80px"></el-table-column>
+      <el-table-column prop="name" label="姓名" width="100px"></el-table-column>
       <el-table-column prop="gender" label="性别" width="80px"></el-table-column>
       <el-table-column prop="phoneNumber" label="电话" width="200px"></el-table-column>
       <el-table-column prop="department" label="部门" width="80px"></el-table-column>
@@ -76,7 +76,7 @@
           :page-sizes="[10, 20, 50]"
           v-model:current-page="pageNum"
           v-model:page-size="pageSize"
-          @change="fetchEmpList"
+          @change="fetchList"
       />
     </div>
   </div>
@@ -113,12 +113,13 @@ let list = ref([])      // 员工列表
 
 // 网页加载时运行
 onMounted(() => {
-  fetchEmpList()  // 加载所有员工
+  fetchList()  // 加载所有员工
 })
 
 //-------------按钮事件---------------
 
 function handleAddEmp() {
+  clearEmp()  // 清空临时数据
   EmpEditDialog.title = "添加新用户";
   EmpEditDialog.visible = true //显示对话框
 
@@ -128,16 +129,22 @@ function handleAddEmp() {
 function handleUpdateEmp(row) {
   EmpEditDialog.title = "修改用户";
   EmpEditDialog.visible = true //显示对话框
-  emp = row
+
+  emp.id = row.id
+  emp.name = row.name
+  emp.phoneNumber = row.phoneNumber
+  emp.department = row.department
+  emp.gender = row.gender
+
   handleAction = updateEmp
 }
 
 //----------------------------
 
 //  获取所有的员工
-async function fetchEmpList() {
+async function fetchList() {
   let data = await api.getAllEmp(pageNum.value, pageSize.value);
-  list.value = data.emplist;
+  list.value = data.list;
   total.value = data.total;
 }
 
@@ -150,9 +157,9 @@ async function addEmp() {
       message: "添加成功!"
     })
 
-    await fetchEmpList() //刷新表格
+    await fetchList() //刷新表格
     EmpEditDialog.visible = false //关闭对话框
-    clearForm(emp)  // 清空临时数据
+
 
   } catch (err) { // 发生错误
     ElMessage({type: "error", message: err})
@@ -169,7 +176,7 @@ async function deleteEmpById(row) {
       message: "删除成功！"
     })  //显示删除信息
 
-    await fetchEmpList()  // 刷新表格
+    await fetchList()  // 刷新表格
   } catch (err) { // 发生错误
     ElMessage({type: "error", message: err})
     console.log(err)
@@ -186,9 +193,9 @@ async function updateEmp() {
       message: "更新成功！"
     })
 
-    await fetchEmpList()  // 刷新表格
+    await fetchList()  // 刷新表格
     EmpEditDialog.visible = false // 关闭对话框
-    clearForm(emp)  // 清空临时数据
+    clearEmp()  // 清空临时数据
 
   } catch (err) {
     ElMessage({type: "error", message: err})
@@ -204,7 +211,7 @@ function getEmpByNameOrId() {
 
 
 // -------------------基础功能----------------------
-function clearForm() {
+function clearEmp() {
   console.log("清除内容")
   emp.id = "";
   emp.name = "";
