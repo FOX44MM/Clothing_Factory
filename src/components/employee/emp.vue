@@ -35,37 +35,51 @@
     <el-button type="success" @click="handleAction">确认</el-button>
   </el-dialog>
 
+  <div class="table-container">
+    <el-table :data="list" style="width: 100%" border stripe>
+      <el-table-column prop="id" label="工号" width="80px"></el-table-column>
+      <el-table-column prop="name" label="姓名" width="80px"></el-table-column>
+      <el-table-column prop="gender" label="性别" width="80px"></el-table-column>
+      <el-table-column prop="phoneNumber" label="电话" width="200px"></el-table-column>
+      <el-table-column prop="department" label="部门" width="80px"></el-table-column>
+      <el-table-column label="操作">
+        <template #default="scope">
+          <el-button @click="handleUpdateEmp(scope.row)">修改</el-button>
 
-  <el-table :data="list" style="width: 100%" border stripe>
-    <el-table-column prop="id" label="工号" width="80px"></el-table-column>
-    <el-table-column prop="name" label="姓名" width="80px"></el-table-column>
-    <el-table-column prop="gender" label="性别" width="80px"></el-table-column>
-    <el-table-column prop="phoneNumber" label="电话" width="200px"></el-table-column>
-    <el-table-column prop="department" label="部门" width="80px"></el-table-column>
-    <el-table-column label="操作">
-      <template #default="scope">
-        <el-button @click="handleUpdateEmp(scope.row)">修改</el-button>
+          <el-popconfirm
+              width="220"
+              :icon="Delete"
+              icon-color="#ff6e63"
+              title="确认删除？"
+          >
+            <template #reference>
+              <el-button type="danger">删除</el-button>
+            </template>
 
-        <el-popconfirm
-            width="220"
-            :icon="Delete"
-            icon-color="#ff6e63"
-            title="确认删除？"
-        >
-          <template #reference>
-            <el-button type="danger">删除</el-button>
-          </template>
+            <template #actions="{ confirm, cancel }">
+              <el-button size="small" @click="cancel">取消</el-button>
+              <el-button type="danger" size="small" @click="deleteEmpById(scope.row)">确定!</el-button>
+            </template>
 
-          <template #actions="{ confirm, cancel }">
-            <el-button size="small" @click="cancel">取消</el-button>
-            <el-button type="danger" size="small" @click="deleteEmpById(scope.row)">确定!</el-button>
-          </template>
+          </el-popconfirm>
 
-        </el-popconfirm>
+        </template>
+      </el-table-column>
+    </el-table>
+    <br>
 
-      </template>
-    </el-table-column>
-  </el-table>
+    <div class="pagination-container">
+      <el-pagination
+          layout="prev, pager, next,sizes"
+          background
+          v-model:total="total"
+          :page-sizes="[10, 20, 50]"
+          v-model:current-page="pageNum"
+          v-model:page-size="pageSize"
+          @change="fetchEmpList"
+      />
+    </div>
+  </div>
 </template>
 
 
@@ -76,6 +90,10 @@ import {ElMessage} from "element-plus";
 import * as api from "../../api/empApi.js";
 
 let handleAction;
+
+let total = ref(20)      //总条目数
+let pageNum = ref(1);   //页码
+let pageSize = ref(10); //每页显示的数量
 
 let emp = reactive({
   id: "",
@@ -118,7 +136,9 @@ function handleUpdateEmp(row) {
 
 //  获取所有的员工
 async function fetchEmpList() {
-  list.value = await api.getAllEmp()
+  let data = await api.getAllEmp(pageNum.value, pageSize.value);
+  list.value = data.emplist;
+  total.value = data.total;
 }
 
 //添加新员工
@@ -156,6 +176,7 @@ async function deleteEmpById(row) {
   }
 
 }
+
 // 修改用户信息
 async function updateEmp() {
   try {
@@ -174,13 +195,12 @@ async function updateEmp() {
     console.log(err)
   }
 }
+
 // --------------------待完成--------------------
 // todo 根据工号或姓名查找员工
 function getEmpByNameOrId() {
 
 }
-
-
 
 
 // -------------------基础功能----------------------
@@ -195,5 +215,22 @@ function clearForm() {
 </script>
 
 <style scoped>
+.table-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 75vh;
+  padding: 16px;
+  box-sizing: border-box;
+}
 
+.el-table {
+  flex: 1;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: right;
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
 </style>

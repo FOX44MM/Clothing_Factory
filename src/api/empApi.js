@@ -25,9 +25,17 @@ export async function updateEmpById(emp) {
 }
 
 // todo 查询用户
+export async function searchEmp(id) {
+
+}
 
 // 获取所有用户
-export async function getAllEmp() {
-    let data = await apiClient.get('/employee/list')
-    return data.data.data
+export async function getAllEmp(pageNum, pageSize) {
+    let Response = await apiClient.get('/employee/list',{
+        params: {
+            pageNum: pageNum,
+            pageSize: pageSize,
+        }
+    })
+    return Response.data.data
 }
