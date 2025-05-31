@@ -5,82 +5,79 @@
   <el-button type="success" @click="showNewStyle = true">添加</el-button>
   <br><br>
   <!-- 主表 -->
-  <el-table :data="list" border stripe style="width: 100%" @selection-change="handleSelectionChange">
-    <!--  复选框  -->
-    <!--    <el-table-column type="selection" width="40">-->
-    <!--    </el-table-column>-->
-    <el-table-column
-        label="唯一值"
-        prop="id"
-        width="60px"
-    >
+  <div style="height:100%">
+    <!--  todo 添加分页支持  -->
+    <el-table :data="list" border stripe style="width: 100%" @selection-change="handleSelectionChange">
+      <!--  复选框  -->
+      <!--    <el-table-column type="selection" width="40">-->
+      <!--    </el-table-column>-->
+      <el-table-column
+          label="唯一值"
+          prop="id"
+          width="60px"
+      >
 
-    </el-table-column>
-    <el-table-column
-        label="款式"
-        prop="styleName"
-        width="100px"
-    >
-    </el-table-column>
-    <el-table-column
-        label="客户"
-        prop="customerName"
-        width="140px"
-    ></el-table-column>
-    <el-table-column
-        label="款号"
-        prop="styleNum"
-        width="180px"
-    ></el-table-column>
-    <el-table-column
-        label="备注"
-        prop="remark"
+      </el-table-column>
+      <el-table-column
+          label="款式"
+          prop="styleName"
+          width="100px"
+      >
+      </el-table-column>
+      <el-table-column
+          label="客户"
+          prop="customerName"
+          width="140px"
+      ></el-table-column>
+      <el-table-column
+          label="款号"
+          prop="styleNum"
+          width="180px"
+      ></el-table-column>
+      <el-table-column
+          label="备注"
+          prop="remark"
 
-    ></el-table-column>
-    <el-table-column
-        label="创建时间"
-        prop="createTime"
-        width="180px"
-    ></el-table-column>
-    <!--    todo 使用popconfirm替代弹出层-->
-    <el-table-column label="操作">
-      <template #default="scope">
-        <!--    todo 改为popconfirm    -->
+      ></el-table-column>
+      <el-table-column
+          label="创建时间"
+          prop="createTime"
+          width="180px"
+      ></el-table-column>
+      <el-table-column label="操作">
+        <template #default="scope">
+          <el-popconfirm v-if="!scope.row.status"
+                         title="确定删除?"
+                         width="220"
+                         :icon="Delete"
+                         icon-color="#ff6e63"
+          >
 
+            <template #reference>
+              <el-button type="danger">删除</el-button>
+            </template>
 
-        <!--        <el-button type="danger" @click="showDeleteStyle(scope.row)">删除</el-button>-->
-        <el-popconfirm v-if="!scope.row.status"
-                       title="确定删除?"
-                       width="220"
-
-                       :icon="Delete"
-                       icon-color="#ff6e63"
-        >
-
-          <template #reference>
-            <el-button type="danger">删除</el-button>
-          </template>
-
-          <template #actions="{ confirm, cancel }">
-            <el-button size="small" @click="cancel">取消</el-button>
-            <el-button
-                type="danger"
-                size="small"
-                @click="deleteStyle(scope.row)"
-            >
-              确定!
-            </el-button>
-          </template>
+            <template #actions="{ confirm, cancel }">
+              <el-button size="small" @click="cancel">取消</el-button>
+              <el-button type="danger" size="small" @click="deleteStyle(scope.row)">确定!</el-button>
+            </template>
+          </el-popconfirm>
 
 
-        </el-popconfirm>
-
-
-        <el-button type="primary" @click="showEditStyleDialog(scope.row)">编辑</el-button>
-        <el-button @click="showStyleWp = true">修改工序</el-button>
-      </template>
-    </el-table-column>
-  </el-table>
+          <el-button type="primary" @click="showEditStyleDialog(scope.row)">编辑</el-button>
+          <el-button @click="showStyleWp = true">修改工序</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <br>
+    <!--  总数total 每页数量 当前页数current-page 每页数量选择器  -->
+    <el-pagination
+        background
+        layout="prev, pager, next"
+        :total="20"
+        page-size="10"
+    />
+  </div>
 
   <!-- --------------------------------------对话框-------------------------------------- -->
   <el-dialog title="新建款式" v-model="showNewStyle" draggable>
@@ -352,7 +349,6 @@ function getAllStyle() {
   list.value = []
   axios.get(apiUrl + "/list")
       .then((res) => {
-        // console.log(data)
         list.value = res.data.data;
       })
 }

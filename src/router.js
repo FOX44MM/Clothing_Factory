@@ -3,8 +3,9 @@ import {createRouter, createWebHashHistory, createWebHistory} from 'vue-router'
 const router = createRouter({
     history: createWebHashHistory(),
     routes: [
-        {path: '/', redirect: '/style'},
-        ,
+        {path: '/',
+            component: () => import('./components/introduction.vue'),
+        },
         {
             path: '/emp',
             component: () => import('./components/employee/emp.vue'),
